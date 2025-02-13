@@ -8,9 +8,17 @@ export const selectRandomOneFromList = (list) => {
 
 export const SingleStudentSelector = (props) => {
     const [studentChosen, setStudentChosen] = useState("-");
+    const [answered, setAnswered] = useState(null);
     
     const onChooseClick = (e) => {
         setStudentChosen(selectRandomOneFromList(props.studentsPresent)+", your turn!");
+        setAnswered(null); //resets the answered state after click
+    };
+
+    const onRecordAnswer = (didAnswer) => {
+        setAnswered(didAnswer);
+        // TODO: add logic to record the answer to the server
+        console.log(`${studentChosen.split(",")[0]} answered ${didAnswer ? "Yes" : "No"}`);
     };
 
     return (
@@ -24,7 +32,17 @@ export const SingleStudentSelector = (props) => {
             <Row>
                 <h4 className="p-2">{studentChosen}</h4>
             </Row>
-            
+            {studentChosen !== "-" && (
+                <Row>
+                    <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>Answered</Button>
+                    <Button className="m-2 btn-danger" onClick={() => onRecordAnswer(false)}>Did Not Answer</Button>
+                </Row>
+            )}
+            {answered !== null && (
+                <Row>
+                    <h5 className="p-2">{answered ? "Student answered" : "Student did not answer"}</h5>
+                </Row>
+            )}
         </Container>
     );
 };

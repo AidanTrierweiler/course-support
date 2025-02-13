@@ -1,3 +1,4 @@
+// To run tests: npm test
 
 import {selectRandomOneFromList} from "../../main/js/SingleStudentSelector"
 

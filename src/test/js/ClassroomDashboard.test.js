@@ -1,3 +1,5 @@
+// To run tests: npm test
+
 import {presentListFromRosterMap} from "../../main/js/ClassroomDashboard"
 import {testRoster} from "./examples/InternalObjectExamples"
 

@@ -10,6 +10,7 @@ import ClassroomDashboardDemo from '../../test/js/ClassroomDashboardDemo';
 import SingleStudentSelectorDemo from '../../test/js/SingleStudentSelectorDemo';
 import CourseSupportDemo from '../../test/js/CourseSupportDemo';
 import AttendanceReportDisplayDemo from '../../test/js/AttendanceReportDisplayDemo';
+import StudentList from "./StudentList";
 
 const CourseSupport = (props) => {
 
@@ -22,6 +23,7 @@ const CourseSupport = (props) => {
                     <Route index element={<ClassroomDashboard courseId={courseId} studentNames={props.studentNames} /> }/>
                     <Route path="attendancereport" element={<AttendanceReportDisplay courseId={courseId} attendanceCourseReport={exampleCourseAttendance} />} />
                     <Route path="group-builder-demo" element={<GroupBuilderDemo />} />
+                    <Route path="student-list" element={<StudentList />} />
                     <Route path="attendance-checker-demo" element={<AttendanceCheckerDemo />} />
                     <Route path="classroom-dashboard-demo" element={<ClassroomDashboardDemo />} />
                     <Route path="single-student-selector-demo" element={<SingleStudentSelectorDemo />} />

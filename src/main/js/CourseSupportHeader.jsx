@@ -17,6 +17,9 @@ export const CourseSupportHeader = (props) => {
                                 <li>
                                     <Link to="/attendancereport">Attendance Report</Link>
                                 </li>
+                                <li>
+                                    <Link to="/student-list">Student List</Link>
+                                </li>
                             </ul>
                         </nav>
                 </Row>

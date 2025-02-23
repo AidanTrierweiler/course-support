@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Container, Row, Button } from "react-bootstrap";
 
-
 export const selectRandomOneFromList = (list) => {
     return list[Math.floor(Math.random() * list.length)];
 };
@@ -9,16 +8,32 @@ export const selectRandomOneFromList = (list) => {
 export const SingleStudentSelector = (props) => {
     const [studentChosen, setStudentChosen] = useState("-");
     const [answered, setAnswered] = useState(null);
-    
+    const [studentsData, setStudentsData] = useState(props.studentsPresent.map(student => ({
+        name: student,
+        timesCalledOn: 0,
+        timesAnswered: 0
+    })));
+
     const onChooseClick = (e) => {
-        setStudentChosen(selectRandomOneFromList(props.studentsPresent)+", your turn!");
-        setAnswered(null); //resets the answered state after click
+        const chosenStudent = selectRandomOneFromList(props.studentsPresent);
+        setStudentChosen(chosenStudent + ", your turn!");
+        setAnswered(null); // resets the answered state after click
+
+        setStudentsData(studentsData.map(student => 
+            student.name === chosenStudent ? { ...student, timesCalledOn: student.timesCalledOn + 1 } : student
+        ));
     };
 
     const onRecordAnswer = (didAnswer) => {
         setAnswered(didAnswer);
+        const studentName = studentChosen.split(",")[0];
+
+        setStudentsData(studentsData.map(student => 
+            student.name === studentName ? { ...student, timesAnswered: student.timesAnswered + (didAnswer ? 1 : 0) } : student
+        ));
+
         // TODO: add logic to record the answer to the server
-        console.log(`${studentChosen.split(",")[0]} answered ${didAnswer ? "Yes" : "No"}`);
+        console.log(`${studentName} answered ${didAnswer ? "Yes" : "No"}`);
     };
 
     return (

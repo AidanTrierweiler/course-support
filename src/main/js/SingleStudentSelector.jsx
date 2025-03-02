@@ -59,6 +59,12 @@ export const SingleStudentSelector = (props) => {
 
         // TODO: add logic to record the answer to the server
         console.log(`${studentName} answered ${didAnswer ? "Yes" : "No"}`);
+
+        // Reset the studentChosen and answered states
+        setTimeout(() => {
+            setStudentChosen("-");
+            setAnswered(null);
+        }, 1000); // Adjust the delay as needed
     };
 
     return (
@@ -74,13 +80,13 @@ export const SingleStudentSelector = (props) => {
             </Row>
             {studentChosen !== "-" && (
                 <Row>
-                    <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>Answered</Button>
-                    <Button className="m-2 btn-danger" onClick={() => onRecordAnswer(false)}>Did Not Answer</Button>
+                    <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>Answer</Button>
+                    <Button className="m-2 btn-light-blue" onClick={() => onRecordAnswer(false)}>Pass</Button>
                 </Row>
             )}
             {answered !== null && (
                 <Row>
-                    <h5 className="p-2">{answered ? "Student answered" : "Student did not answer"}</h5>
+                    <h5 className="p-2">{answered ? "Answered" : "Passed"}</h5>
                 </Row>
             )}
         </Container>

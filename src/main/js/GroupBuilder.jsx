@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Container, Row, Button, Col, ListGroup, ListGroupItem } from "react-bootstrap";
+// import axios from "axios"; // Uncomment this when the server is set up
 
 export const buildGroups = (student_list, group_size) => {
     let list_to_group = student_list.slice();
@@ -16,7 +17,7 @@ export const buildGroups = (student_list, group_size) => {
         list_to_group = list_to_group.filter(item=>(item !== student));
         current_group.push(student);
     }    
-    //last group will end up with an arbirary amount of people
+    //last group will end up with an arbitrary amount of people
     //take one from each group second to last down and add to last, until last has enough
     let index_of_group_to_remove_from = groups.length-2;
     while (groups[groups.length-1].length < group_size-1 && index_of_group_to_remove_from >= 0){
@@ -36,6 +37,7 @@ const GroupBuilderControlPanel = (props) => {
                 <output className="px-2"><h4>{props.groupSize}</h4></output>
             </Row>
             <Button onClick={props.onCreateGroupClick}> Create Group </Button>
+            <Button onClick={props.onSaveGroupsClick}> Save Groups </Button>
         </Container>
     );
 };
@@ -52,6 +54,17 @@ export const GroupBuilder = (props) => {
         setGroups(buildGroups(props.studentsPresent, groupSize));
     }
 
+    const onSaveGroupsClick = async () => {
+        try {
+            // Uncomment and implement the POST request when the server is set up
+            // await axios.post("http://localhost:8080/api/groups", { groups });
+            console.log("Groups saved successfully!"); // Placeholder for success message
+        } catch (error) {
+            console.error("Error saving groups:", error);
+            alert("Failed to save groups.");
+        }
+    }
+
     return(
         <Container className="border rounded m-2">
             <Row>
@@ -59,11 +72,13 @@ export const GroupBuilder = (props) => {
             </Row> 
             <Row>
                 <Col>
-                    <GroupBuilderControlPanel groupSize={groupSize} onGroupSizeChange={onGroupSizeChange} onCreateGroupClick={onCreateGroupClick} />
+                    <GroupBuilderControlPanel groupSize={groupSize} onGroupSizeChange={onGroupSizeChange} onCreateGroupClick={onCreateGroupClick} onSaveGroupsClick={onSaveGroupsClick} />
                 </Col>
                 <Col>
                     <ListGroup className="m-2">
-                        {groups.map(group=>(<ListGroupItem key={group}> {group.map(student=>student+", ")} </ListGroupItem>))}
+                        {groups.map((group, index) => (
+                            <ListGroupItem key={index}> {group.map(student => student + ", ")} </ListGroupItem>
+                        ))}
                     </ListGroup>
                 </Col>
             </Row>

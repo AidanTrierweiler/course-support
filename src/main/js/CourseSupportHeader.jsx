@@ -20,6 +20,9 @@ export const CourseSupportHeader = (props) => {
                                 <li>
                                     <Link to="/student-list">Student List</Link>
                                 </li>
+                                <li>
+                                    <Link to="/saved-groups">Saved Groups</Link>
+                                </li>
                             </ul>
                         </nav>
                 </Row>

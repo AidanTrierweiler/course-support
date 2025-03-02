@@ -45,7 +45,7 @@ export const ClassroomDashboard = (props) => {
         <Container>
             <Row>
                 <Col className="col-sm-4">
-                    <SingleStudentSelector studentsPresent={presentListFromRosterMap(roster)} />
+                    <SingleStudentSelector studentsPresent={presentListFromRosterMap(roster)} selectionMethod="queue" />
                 </Col>
                 <Col className="col-sm-8">
                     <GroupBuilder studentsPresent={presentListFromRosterMap(roster)} defaultGroupSize={3} />

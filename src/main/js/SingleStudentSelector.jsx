@@ -1,8 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Row, Button } from "react-bootstrap";
 
 export const selectRandomOneFromList = (list) => {
     return list[Math.floor(Math.random() * list.length)];
+};
+
+export const shuffleArray = (array) => {
+    let shuffledArray = array.slice();
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
 };
 
 export const SingleStudentSelector = (props) => {
@@ -13,9 +22,25 @@ export const SingleStudentSelector = (props) => {
         timesCalledOn: 0,
         timesAnswered: 0
     })));
+    const [studentQueue, setStudentQueue] = useState([]);
+
+    useEffect(() => {
+        if (props.selectionMethod === "queue") {
+            setStudentQueue(shuffleArray(props.studentsPresent));
+        }
+    }, [props.studentsPresent, props.selectionMethod]);
 
     const onChooseClick = (e) => {
-        const chosenStudent = selectRandomOneFromList(props.studentsPresent);
+        let chosenStudent;
+        if (props.selectionMethod === "queue") {
+            if (studentQueue.length === 0) {
+                setStudentQueue(shuffleArray(props.studentsPresent));
+            }
+            chosenStudent = studentQueue[0];
+            setStudentQueue(studentQueue.slice(1));
+        } else {
+            chosenStudent = selectRandomOneFromList(props.studentsPresent);
+        }
         setStudentChosen(chosenStudent + ", your turn!");
         setAnswered(null); // resets the answered state after click
 

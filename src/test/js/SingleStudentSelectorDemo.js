@@ -5,7 +5,12 @@ import SingleStudentSelector from '../../main/js/SingleStudentSelector';
 
 export const SingleStudentSelectorDemo = (props) => {
     return (
-        <SingleStudentSelector studentsPresent={exampleOf18Students} />
+        <div>
+            <h3>Random Selection Method</h3>
+            <SingleStudentSelector studentsPresent={exampleOf18Students} selectionMethod="random" />
+            <h3>Queue Selection Method</h3>
+            <SingleStudentSelector studentsPresent={exampleOf18Students} selectionMethod="queue" />
+        </div>
     );
 };
 

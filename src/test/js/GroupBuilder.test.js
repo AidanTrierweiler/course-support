@@ -1,5 +1,3 @@
-// To run tests: npm test
-
 import { buildGroups } from "../../main/js/GroupBuilder";
 import { exampleOf18Students } from "./examples/JsonExamples";
 

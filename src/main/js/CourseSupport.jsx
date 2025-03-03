@@ -12,6 +12,7 @@ import CourseSupportDemo from '../../test/js/CourseSupportDemo';
 import AttendanceReportDisplayDemo from '../../test/js/AttendanceReportDisplayDemo';
 import StudentList from "./StudentList";
 import SavedGroups from "./SavedGroups";
+import SavedGroupsDemo from "../../test/js/SavedGroupsDemo";
 
 const CourseSupport = (props) => {
 
@@ -31,6 +32,7 @@ const CourseSupport = (props) => {
                     <Route path="course-support-demo" element={<CourseSupportDemo />} />
                     <Route path="attendance-report-demo" element={<AttendanceReportDisplayDemo />} />
                     <Route path="saved-groups" element={<SavedGroups />} />
+                    <Route path="saved-groups-demo" element={<SavedGroupsDemo/>} />
                 </Route>
             </Routes>
         </BrowserRouter>

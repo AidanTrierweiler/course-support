@@ -77,7 +77,7 @@ export const GroupBuilder = (props) => {
                 <Col>
                     <ListGroup className="m-2">
                         {groups.map((group, index) => (
-                            <ListGroupItem key={index}> {group.map(student => student + ", ")} </ListGroupItem>
+                            <ListGroupItem key={index} role="listitem"> {group.map(student => student + ", ")} </ListGroupItem>
                         ))}
                     </ListGroup>
                 </Col>

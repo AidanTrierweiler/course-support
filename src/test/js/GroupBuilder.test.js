@@ -1,4 +1,5 @@
-import { buildGroups } from "../../main/js/GroupBuilder";
+import { render, fireEvent, screen } from "@testing-library/react";
+import GroupBuilder, { buildGroups } from "../../main/js/GroupBuilder";
 import { exampleOf18Students } from "./examples/JsonExamples";
 
 describe('GroupBuilder', () => {
@@ -45,5 +46,26 @@ describe('GroupBuilder', () => {
         expect(otherGroups[otherGroups.length-2].length).toStrictEqual(2);
         expect(otherGroups[otherGroups.length-1].length).toStrictEqual(2);
     });
-    
+
+    test('renders GroupBuilder and creates groups', () => {
+        render(<GroupBuilder studentsPresent={exampleOf18Students} defaultGroupSize={3} />);
+        
+        const createGroupButton = screen.getByText("Create Group");
+        fireEvent.click(createGroupButton);
+
+        const groupItems = screen.getAllByRole("listitem");
+        expect(groupItems.length).toBeGreaterThan(0);
+    });
+
+    test('renders GroupBuilder and saves groups', () => {
+        console.log = jest.fn(); // Mock console.log
+
+        render(<GroupBuilder studentsPresent={exampleOf18Students} defaultGroupSize={3} />);
+        
+        const saveGroupsButton = screen.getByText("Save Groups");
+        fireEvent.click(saveGroupsButton);
+
+        // Check for the console log message
+        expect(console.log).toHaveBeenCalledWith("Groups saved successfully!");
+    });
 });

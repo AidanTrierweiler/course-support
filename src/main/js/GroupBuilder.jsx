@@ -54,15 +54,12 @@ export const GroupBuilder = (props) => {
         setGroups(buildGroups(props.studentsPresent, groupSize));
     }
 
-    const onSaveGroupsClick = async () => {
-        try {
-            // Uncomment and implement the POST request when the server is set up
-            // await axios.post("http://localhost:8080/api/groups", { groups });
-            console.log("Groups saved successfully!"); // Placeholder for success message
-        } catch (error) {
-            console.error("Error saving groups:", error);
-            alert("Failed to save groups.");
+    const onSaveGroupsClick = () => {
+        const groupName = prompt("Enter a name for the group:");
+        if (groupName && props.onSaveGroups) {
+            props.onSaveGroups({ name: groupName, groups });
         }
+        console.log("Groups saved successfully!"); // Ensure this is called
     }
 
     return(

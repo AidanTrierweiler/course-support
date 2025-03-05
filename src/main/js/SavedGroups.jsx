@@ -2,8 +2,14 @@ import { useEffect, useState } from "react";
 import { Container, Row, ListGroup, ListGroupItem } from "react-bootstrap";
 // import axios from "axios"; // Uncomment this when the server is set up
 
-export const SavedGroups = () => {
-    const [savedGroups, setSavedGroups] = useState([]);
+export const SavedGroups = ({ savedGroups: initialSavedGroups }) => {
+    const [savedGroups, setSavedGroups] = useState(initialSavedGroups || []);
+
+    useEffect(() => {
+        if (initialSavedGroups) {
+            setSavedGroups(initialSavedGroups);
+        }
+    }, [initialSavedGroups]);
 
     useEffect(() => {
         const fetchSavedGroups = async () => {
@@ -17,8 +23,10 @@ export const SavedGroups = () => {
             }
         };
 
-        fetchSavedGroups();
-    }, []);
+        if (!initialSavedGroups) {
+            fetchSavedGroups();
+        }
+    }, [initialSavedGroups]);
 
     return (
         <Container className="border rounded m-2">
@@ -28,7 +36,14 @@ export const SavedGroups = () => {
             <Row>
                 <ListGroup className="m-2">
                     {savedGroups.map((group, index) => (
-                        <ListGroupItem key={index}> {group.map(student => student + ", ")} </ListGroupItem>
+                        <ListGroupItem key={index}>
+                            <strong>{group.name}</strong>
+                            <ul>
+                                {group.groups.map((subGroup, subIndex) => (
+                                    <li key={subIndex}>{subGroup.join(", ")}</li>
+                                ))}
+                            </ul>
+                        </ListGroupItem>
                     ))}
                 </ListGroup>
             </Row>

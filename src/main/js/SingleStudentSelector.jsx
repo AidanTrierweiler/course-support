@@ -32,17 +32,21 @@ export const SingleStudentSelector = (props) => {
 
     const onChooseClick = (e) => {
         let chosenStudent;
+        let updatedQueue = studentQueue;
+
         if (props.selectionMethod === "queue") {
             if (studentQueue.length === 0) {
-                setStudentQueue(shuffleArray(props.studentsPresent));
+                updatedQueue = shuffleArray(props.studentsPresent);
+                setStudentQueue(updatedQueue);
             }
-            chosenStudent = studentQueue[0];
-            setStudentQueue(studentQueue.slice(1));
+            chosenStudent = updatedQueue[0];
+            setStudentQueue(updatedQueue.slice(1));
         } else {
             chosenStudent = selectRandomOneFromList(props.studentsPresent);
         }
+
         setStudentChosen(chosenStudent + ", your turn!");
-        setAnswered(null); // resets the answered state after click
+        setAnswered(null);
 
         setStudentsData(studentsData.map(student => 
             student.name === chosenStudent ? { ...student, timesCalledOn: student.timesCalledOn + 1 } : student
@@ -57,14 +61,12 @@ export const SingleStudentSelector = (props) => {
             student.name === studentName ? { ...student, timesAnswered: student.timesAnswered + (didAnswer ? 1 : 0) } : student
         ));
 
-        // TODO: add logic to record the answer to the server
         console.log(`${studentName} answered ${didAnswer ? "Yes" : "No"}`);
 
-        // Reset the studentChosen and answered states
         setTimeout(() => {
             setStudentChosen("-");
             setAnswered(null);
-        }, 1000); // Adjust the delay as needed
+        }, 1000);
     };
 
     return (

@@ -1,0 +1,12 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "id": { "type": "integer" },
+        "studentId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "dayNumber": { "type": "integer" },
+        "status": { "type": "string", "enum": ["present", "absent"] }
+    },
+    "required": ["studentId", "courseId", "dayNumber", "status"]
+}

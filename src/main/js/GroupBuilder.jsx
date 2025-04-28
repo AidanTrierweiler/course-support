@@ -1,57 +1,38 @@
 import { useState } from "react";
 import { Container, Row, Button, Col, ListGroup, ListGroupItem } from "react-bootstrap";
-import axios from "axios"; // Add this import for API calls
+import Select from "react-select";
+import axios from "axios";
 
 export const buildGroups = (student_list, group_size) => {
     let list_to_group = student_list.slice();
     const groups = [];
     let current_group = [];
     groups.push(current_group);
-    while (list_to_group.length !== 0){
-        if(current_group.length >= group_size){
+    while (list_to_group.length !== 0) {
+        if (current_group.length >= group_size) {
             current_group = [];
             groups.push(current_group);
         }
         const ridx = Math.floor(Math.random() * list_to_group.length);
         const student = list_to_group[ridx];
-        list_to_group = list_to_group.filter(item=>(item !== student));
+        list_to_group = list_to_group.filter(item => item !== student);
         current_group.push(student);
-    }    
-    //last group will end up with an arbitrary amount of people
-    //take one from each group second to last down and add to last, until last has enough
-    let index_of_group_to_remove_from = groups.length-2;
-    while (groups[groups.length-1].length < group_size-1 && index_of_group_to_remove_from >= 0){
-        const groupToRemoveFrom = groups[index_of_group_to_remove_from];
-        groups[groups.length-1].push(groupToRemoveFrom.pop());
-        index_of_group_to_remove_from -= 1;
     }
     return groups;
-};
-
-const GroupBuilderControlPanel = (props) => {
-    return (
-        <Container > 
-            <Row>
-                <label className="px-2">Max members: </label>
-                <input onChange={props.onGroupSizeChange} type="range" name="Number In Group" id="groupSizeSlider" min="2" max="5" step="1" value={props.groupSize} />
-                <output className="px-2"><h4>{props.groupSize}</h4></output>
-            </Row>
-            <Button onClick={props.onCreateGroupClick}> Create Group </Button>
-            <Button onClick={props.onSaveGroupsClick}> Save Groups </Button>
-        </Container>
-    );
 };
 
 export const GroupBuilder = (props) => {
     const [groupSize, setGroupSize] = useState(props.defaultGroupSize);
     const [groups, setGroups] = useState([]);
+    const [manualGroup, setManualGroup] = useState([]);
+    const [remainingStudents, setRemainingStudents] = useState(props.studentsPresent);
 
     const onGroupSizeChange = (e) => {
         setGroupSize(e.target.value);
     };
 
-    const onCreateGroupClick = (e) => {
-        setGroups(buildGroups(props.studentsPresent, groupSize));
+    const onCreateGroupClick = () => {
+        setGroups(buildGroups(remainingStudents, groupSize));
     };
 
     const onSaveGroupsClick = async () => {
@@ -67,29 +48,102 @@ export const GroupBuilder = (props) => {
         }
     };
 
+    const onAddToManualGroup = (selectedStudents) => {
+        const selectedStudentNames = selectedStudents.map((option) => option.value);
+
+        // Use a Set to prevent duplicates
+        const updatedManualGroup = Array.from(new Set([...manualGroup, ...selectedStudentNames]));
+
+        setManualGroup(updatedManualGroup);
+        setRemainingStudents(remainingStudents.filter((s) => !selectedStudentNames.includes(s)));
+    };
+
+    const onFinalizeManualGroup = () => {
+        if (manualGroup.length > 0) {
+            setGroups([...groups, manualGroup]);
+            setManualGroup([]); // Clear the manual group after finalizing
+        }
+    };
+
+    const onClearManualGroup = () => {
+        setRemainingStudents([...remainingStudents, ...manualGroup]);
+        setManualGroup([]);
+    };
+
     return (
         <Container className="border rounded m-2">
             <Row>
-                <label className="px-2"><h6>Make Random Groups: </h6></label>
+                <label className="px-2">
+                    <h6>Make Random Groups: </h6>
+                </label>
             </Row>
             <Row>
                 <Col>
-                    <GroupBuilderControlPanel
-                        groupSize={groupSize}
-                        onGroupSizeChange={onGroupSizeChange}
-                        onCreateGroupClick={onCreateGroupClick}
-                        onSaveGroupsClick={onSaveGroupsClick}
-                    />
+                    <h6>Random Group Creation</h6>
+                    <Row>
+                        <label className="px-2">Max members: </label>
+                        <input
+                            onChange={onGroupSizeChange}
+                            type="range"
+                            name="Number In Group"
+                            id="groupSizeSlider"
+                            min="2"
+                            max="5"
+                            step="1"
+                            value={groupSize}
+                        />
+                        <output className="px-2">
+                            <h4>{groupSize}</h4>
+                        </output>
+                    </Row>
+                    <Button className="m-2" onClick={onCreateGroupClick}>
+                        Create Random Groups
+                    </Button>
                 </Col>
                 <Col>
+                    <h6>Manual Group Creation</h6>
+                    <Select
+                        isMulti
+                        options={remainingStudents.map((student) => ({ value: student, label: student }))}
+                        onChange={onAddToManualGroup}
+                        placeholder="Select students to add to the group"
+                    />
+                    <h6 className="mt-3">Current Manual Group</h6>
+                    <ListGroup className="m-2">
+                        {manualGroup.map((student, index) => (
+                            <ListGroupItem key={index}>{student}</ListGroupItem>
+                        ))}
+                    </ListGroup>
+                    <Button
+                        className="m-2 btn-success"
+                        onClick={onFinalizeManualGroup}
+                        disabled={manualGroup.length === 0}
+                    >
+                        Finalize Group
+                    </Button>
+                    <Button
+                        className="m-2 btn-danger"
+                        onClick={onClearManualGroup}
+                        disabled={manualGroup.length === 0}
+                    >
+                        Clear Manual Group
+                    </Button>
+                </Col>
+                <Col>
+                    <h6>Current Groups</h6>
                     <ListGroup className="m-2">
                         {groups.map((group, index) => (
-                            <ListGroupItem key={index} role="listitem">
-                                {group.map(student => student + ", ")}
+                            <ListGroupItem key={index}>
+                                Group {index + 1}: {group.join(", ")}
                             </ListGroupItem>
                         ))}
                     </ListGroup>
                 </Col>
+            </Row>
+            <Row>
+                <Button className="m-2 btn-primary" onClick={onSaveGroupsClick}>
+                    Save All Groups
+                </Button>
             </Row>
         </Container>
     );

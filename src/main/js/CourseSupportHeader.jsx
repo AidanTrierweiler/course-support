@@ -5,29 +5,33 @@ import { CourseSelector } from "./CourseSelector";
 export const CourseSupportHeader = (props) => {
     return (
         <Container>
-           <Jumbotron> 
+            <Jumbotron>
                 <Row className="justify-content-center align-items-center">
-                        <Image src="./teacherIcon128.png" alt="" />
-                        <h1>DragonLab's Course Support </h1>
-                        <nav>
-                            <ul>
-                                <li>
-                                    <Link to="/">Home</Link>
-                                </li>
-                                <li>
-                                    <Link to="/attendancereport">Attendance Report</Link>
-                                </li>
-                                <li>
-                                    <Link to="/student-list">Student List</Link>
-                                </li>
-                                <li>
-                                    <Link to="/saved-groups">Saved Groups</Link>
-                                </li>
-                            </ul>
-                        </nav>
+                    <Image src="./teacherIcon128.png" alt="" />
+                    <h1>DragonLab's Course Support </h1>
+                    <nav>
+                        <ul>
+                            <li>
+                                <Link to="/">Home</Link>
+                            </li>
+                            <li>
+                                <Link to="/attendancereport">Attendance Report</Link>
+                            </li>
+                            <li>
+                                <Link to="/student-list">Student List</Link>
+                            </li>
+                            <li>
+                                <Link to="/saved-groups">Saved Groups</Link>
+                            </li>
+                        </ul>
+                    </nav>
                 </Row>
                 <Row>
-                    <CourseSelector courseId={props.courseId} allCourseIds={props.allCourseIds} onCourseIdSelected={props.onCourseIdSelected} />
+                    <CourseSelector
+                        courseId={props.courseId}
+                        allCourseIds={props.allCourseIds}
+                        onCourseIdSelected={props.onCourseIdSelected}
+                    />
                 </Row>
             </Jumbotron>
             <Outlet />

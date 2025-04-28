@@ -15,24 +15,30 @@ import SavedGroups from "./SavedGroups";
 import SavedGroupsDemo from "../../test/js/SavedGroupsDemo";
 
 const CourseSupport = (props) => {
-
     const [courseId, setCourseId] = useState(props.courseId);
 
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<CourseSupportHeader courseId={courseId} allCourseIds={[]} onCourseIdSelected={setCourseId} /> }>
-                    <Route index element={<ClassroomDashboard courseId={courseId} studentNames={props.studentNames} /> }/>
-                    <Route path="attendancereport" element={<AttendanceReportDisplay courseId={courseId} attendanceCourseReport={exampleCourseAttendance} />} />
-                    <Route path="group-builder-demo" element={<GroupBuilderDemo />} />
-                    <Route path="student-list" element={<StudentList />} />
-                    <Route path="attendance-checker-demo" element={<AttendanceCheckerDemo />} />
-                    <Route path="classroom-dashboard-demo" element={<ClassroomDashboardDemo />} />
-                    <Route path="single-student-selector-demo" element={<SingleStudentSelectorDemo />} />
-                    <Route path="course-support-demo" element={<CourseSupportDemo />} />
-                    <Route path="attendance-report-demo" element={<AttendanceReportDisplayDemo />} />
+                <Route
+                    path="/"
+                    element={
+                        <CourseSupportHeader
+                            courseId={courseId}
+                            allCourseIds={["COMP220", "COMP171", "COMP172"]} // Example course IDs
+                            onCourseIdSelected={setCourseId}
+                        />
+                    }
+                >
+                    <Route
+                        index
+                        element={<ClassroomDashboard courseId={courseId} studentNames={props.studentNames} />}
+                    />
+                    <Route
+                        path="attendancereport"
+                        element={<AttendanceReportDisplay courseId={courseId} attendanceCourseReport={exampleCourseAttendance} />}
+                    />
                     <Route path="saved-groups" element={<SavedGroups />} />
-                    <Route path="saved-groups-demo" element={<SavedGroupsDemo/>} />
                 </Route>
             </Routes>
         </BrowserRouter>

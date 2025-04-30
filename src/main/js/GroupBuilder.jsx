@@ -36,9 +36,11 @@ export const GroupBuilder = (props) => {
     };
 
     const onSaveGroupsClick = async () => {
-        const groupName = prompt("Enter a name for the group:");
+        const currentDate = new Date().toISOString().split("T")[0];
+        const groupName = prompt(`Enter a name for the group (default: ${currentDate}):`, currentDate);
+
         if (groupName) {
-            const groupData = { name: groupName, groups };
+            const groupData = { name: String(groupName), groups }; // Ensure the name is a string
             try {
                 const response = await axios.post("http://localhost:8080/api/groups", groupData);
                 console.log("Group saved to the back end:", response.data);
@@ -50,11 +52,7 @@ export const GroupBuilder = (props) => {
 
     const onAddToManualGroup = (selectedStudents) => {
         const selectedStudentNames = selectedStudents.map((option) => option.value);
-
-        // Use a Set to prevent duplicates
-        const updatedManualGroup = Array.from(new Set([...manualGroup, ...selectedStudentNames]));
-
-        setManualGroup(updatedManualGroup);
+        setManualGroup([...manualGroup, ...selectedStudentNames]);
         setRemainingStudents(remainingStudents.filter((s) => !selectedStudentNames.includes(s)));
     };
 

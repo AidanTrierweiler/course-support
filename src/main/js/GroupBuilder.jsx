@@ -40,12 +40,17 @@ export const GroupBuilder = (props) => {
         const groupName = prompt(`Enter a name for the group (default: ${currentDate}):`, currentDate);
 
         if (groupName) {
-            const groupData = { name: String(groupName), groups }; // Ensure the name is a string
+            // Convert the groups array to a JSON string
+            const groupData = {
+                name: String(groupName),
+                subgroups: JSON.stringify(groups), // Convert groups to a JSON string
+            };
+
             try {
                 const response = await axios.post("http://localhost:8080/api/groups", groupData);
-                console.log("Group saved to the back end:", response.data);
+                console.log("Group and subgroups saved to the back end:", response.data);
             } catch (error) {
-                console.error("Error saving group:", error);
+                console.error("Error saving group and subgroups:", error);
             }
         }
     };

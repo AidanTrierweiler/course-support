@@ -1,25 +1,28 @@
-import axiosInstance from "../../http-common"
+import axiosInstance from "../../http-common";
 
 class AttendanceDataService {
-
-    getAllAttendanceMarks(){
+    getAllAttendanceMarks() {
         return axiosInstance.get("/attendanceMarks");
     }
 
-    getRecentAttendanceMarks(){
+    getRecentAttendanceMarks() {
         return axiosInstance.get("/recentAttendanceMarks");
     }
 
-    getCourseIds(){
-        return axiosInstance.get("/courseIds");
+    getCourseIds() {
+        return axiosInstance.get("/courses/courseIds");
     }
 
-    recordAttendance(attendanceMarks){
+    getStudents(courseId) {
+        return axiosInstance.get(`/courses/${courseId}/students`);
+    }
+
+    recordAttendance(attendanceMarks) {
         return axiosInstance.post("/attendanceMarks", attendanceMarks);
     }
 
-    createAttendanceReport(courseId){
-        return axiosInstance.get("/attendanceReport", {params: {courseId: courseId}});
+    createAttendanceReport(courseId) {
+        return axiosInstance.get("/attendanceReport", { params: { courseId: courseId } });
     }
 }
 

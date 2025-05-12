@@ -1,63 +1,49 @@
-import { useState } from "react";
-import { Col, Container, Row } from "react-bootstrap";
-
-import AttendanceChecker from "./AttendanceChecker";
+import { useState, useEffect } from "react";
 import AttendanceDataService from "./AttendanceDataService";
-import GroupBuilder from "./GroupBuilder";
-import SingleStudentSelector from "./SingleStudentSelector";
-import SavedGroups from "./SavedGroups";
 
-export const presentListFromRosterMap = (rosterMap) => {
-    return Array.from(rosterMap).filter((mapEntry) => mapEntry[1] === "present").map((mapEntry) => mapEntry[0]);
-};
+const ClassroomDashboard = ({ courseId }) => {
+    const [students, setStudents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-export const ClassroomDashboard = (props) => {
-    // Make the data structure that will track students marked absent or present
-    let rosterMapStart = new Map();
-    props.studentNames.forEach((studentName) => rosterMapStart.set(studentName, "present"));
-    const [roster, setRoster] = useState(rosterMapStart);
-
-    // Give this to other components that need to update attendanceMarks in the rosterMap
-    const switchStudentStatus = (studentName) => {
-        if (roster.get(studentName) === "present") {
-            roster.set(studentName, "absent");
-        } else {
-            roster.set(studentName, "present");
+    useEffect(() => {
+        if (courseId) {
+            setLoading(true);
+            AttendanceDataService.getStudents(courseId)
+                .then((response) => {
+                    if (response.data && response.data.length > 0) {
+                        setStudents(response.data);
+                    } else {
+                        setStudents([]); // Handle empty response
+                    }
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error("Error fetching students:", error);
+                    setError("Failed to load students.");
+                    setLoading(false);
+                });
         }
-        setRoster(new Map(roster));
-    };
+    }, [courseId]);
 
-    // Give this to other components that need to record attendance to the server
-    const recordAttendance = (dayNumber) => {
-        const attendanceMarks = Array.from(roster, ([studentName, status]) => ({
-            studentId: studentName,
-            courseId: props.courseId,
-            dayNumber: dayNumber,
-            status: status,
-        }));
-        console.log(attendanceMarks);
-        AttendanceDataService.recordAttendance(attendanceMarks);
-    };
+    if (loading) {
+        return <div>Loading students...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    if (!students || students.length === 0) {
+        return <div>No students available for this course.</div>;
+    }
 
     return (
-        <Container>
-            <Row>
-                <Col className="col-sm-4">
-                    <SingleStudentSelector studentsPresent={presentListFromRosterMap(roster)} selectionMethod="queue" />
-                </Col>
-                <Col className="col-sm-8">
-                    <GroupBuilder studentsPresent={presentListFromRosterMap(roster)} defaultGroupSize={3} />
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    <SavedGroups />
-                </Col>
-            </Row>
-            <Row>
-                <AttendanceChecker roster={roster} switchStudentStatus={switchStudentStatus} recordAttendance={recordAttendance} />
-            </Row>
-        </Container>
+        <div>
+            {students.map((student) => (
+                <div key={student.id}>{student.name}</div>
+            ))}
+        </div>
     );
 };
 

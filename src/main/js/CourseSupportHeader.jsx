@@ -23,6 +23,15 @@ export const CourseSupportHeader = (props) => {
                             <li>
                                 <Link to="/saved-groups">Saved Groups</Link>
                             </li>
+                            <li>
+                                <Link to="/random-picker">Random Picker</Link>
+                            </li>
+                            <li>
+                                <Link to="/group-maker">Group Maker</Link>
+                            </li>
+                            <li>
+                                <Link to="/attendance-checker">Attendance Checker</Link>
+                            </li>
                         </ul>
                     </nav>
                 </Row>

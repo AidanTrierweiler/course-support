@@ -6,23 +6,12 @@ export const SavedGroups = () => {
     const [savedGroups, setSavedGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
 
+    // Fetch all saved groups on component mount
     useEffect(() => {
         const fetchSavedGroups = async () => {
             try {
                 const response = await axios.get("http://localhost:8080/api/groups");
-                const sortedGroups = response.data.sort((a, b) => {
-                    const isADate = !isNaN(Date.parse(a.name));
-                    const isBDate = !isNaN(Date.parse(b.name));
-
-                    if (!isADate && isBDate) return -1; // Non-date names come first
-                    if (isADate && !isBDate) return 1; // Date names come after non-date names
-                    if (isADate && isBDate) {
-                        // Sort date names by most recent first
-                        return new Date(b.name) - new Date(a.name);
-                    }
-                    return a.name.localeCompare(b.name); // Alphabetical for non-date names
-                });
-                setSavedGroups(sortedGroups);
+                setSavedGroups(response.data);
             } catch (error) {
                 console.error("Error fetching saved groups:", error);
             }
@@ -31,9 +20,28 @@ export const SavedGroups = () => {
         fetchSavedGroups();
     }, []);
 
-    const handleSelectGroup = (groupName) => {
-        const group = savedGroups.find((g) => g.name === groupName);
-        setSelectedGroup(group || null); // Ensure selectedGroup is null if no match is found
+    // Handle group selection and sanitize subgroups if necessary
+    const handleSelectGroup = async (groupName) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/groups/by-name/${groupName}`);
+            const groupData = response.data;
+
+            // Check if subgroups is a string
+            if (typeof groupData.subgroups === "string") {
+                try {
+                    // Attempt to parse the string as JSON
+                    groupData.subgroups = JSON.parse(groupData.subgroups);
+                } catch (error) {
+                    // If parsing fails, keep it as a plain string
+                    console.warn("Subgroups is not valid JSON, treating it as a plain string:", groupData.subgroups);
+                }
+            }
+
+            setSelectedGroup(groupData);
+        } catch (error) {
+            console.error("Error fetching selected group:", error);
+            setSelectedGroup(null); // Clear the selected group if there's an error
+        }
     };
 
     return (
@@ -55,11 +63,15 @@ export const SavedGroups = () => {
                 {selectedGroup && selectedGroup.subgroups && (
                     <div>
                         <h6 className="mt-3">Subgroups for {selectedGroup.name}</h6>
-                        <ListGroup className="m-2">
-                            {selectedGroup.subgroups.map((subgroup, index) => (
-                                <ListGroupItem key={index}>{subgroup.join(", ")}</ListGroupItem>
-                            ))}
-                        </ListGroup>
+                        {Array.isArray(selectedGroup.subgroups) ? (
+                            <ListGroup className="m-2">
+                                {selectedGroup.subgroups.map((subgroup, index) => (
+                                    <ListGroupItem key={index}>{subgroup.join(", ")}</ListGroupItem>
+                                ))}
+                            </ListGroup>
+                        ) : (
+                            <p>{selectedGroup.subgroups}</p> // Display the string directly
+                        )}
                     </div>
                 )}
             </Col>

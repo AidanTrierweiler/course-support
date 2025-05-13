@@ -11,35 +11,68 @@ export const shuffleArray = (array) => {
     return shuffledArray;
 };
 
-export const SingleStudentSelector = (props) => {
-    const [studentChosen, setStudentChosen] = useState("-");
+export const SingleStudentSelector = () => {
+    const [studentChosen, setStudentChosen] = useState(null); // Store the full student object
     const [answered, setAnswered] = useState(null);
-    const [studentsData, setStudentsData] = useState(
-        props.studentsPresent.map((student, index) => ({
-            id: index + 1, // Assign a temporary ID if not provided
-            name: student,
-            timesCalledOn: 0,
-            timesAnswered: 0,
-        }))
-    );
+    const [studentsData, setStudentsData] = useState([]);
     const [studentQueue, setStudentQueue] = useState([]);
 
+    const courseId = "COMP220"; // Hardcoded courseId for COMP220
+
+    // Fetch full student objects for COMP220
     useEffect(() => {
-        if (props.selectionMethod === "queue") {
-            setStudentQueue(shuffleArray(props.studentsPresent));
-        }
-    }, [props.studentsPresent, props.selectionMethod]);
+        console.log("Fetching students for course:", courseId); // Debugging log
+
+        const fetchStudents = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8080/api/students/courses/${courseId}/students`
+                );
+                console.log("Backend response:", response.data); // Debugging log
+
+                const updatedStudentsData = response.data.map((student) => ({
+                    id: student.id,
+                    name: student.preferredName || student.netpass,
+                    netpass: student.netpass,
+                    timesCalledOn: 0,
+                    timesAnswered: 0,
+                }));
+
+                console.log("updatedStudentsData:", updatedStudentsData); // Debugging log
+
+                setStudentsData(updatedStudentsData);
+                const shuffledQueue = shuffleArray(updatedStudentsData);
+                console.log("shuffledQueue:", shuffledQueue); // Debugging log
+                setStudentQueue(shuffledQueue);
+                setStudentChosen(null);
+                setAnswered(null);
+            } catch (error) {
+                console.error("Error fetching students:", error.response || error.message);
+            }
+        };
+
+        fetchStudents();
+    }, [courseId]);
 
     const onChooseClick = () => {
+        console.log("studentQueue before choosing:", studentQueue); // Debugging log
+
         if (studentQueue.length === 0) {
             console.log("Queue is empty, reshuffling...");
-            const reshuffledQueue = shuffleArray(props.studentsPresent);
-            setStudentQueue(reshuffledQueue);
-            setStudentChosen(reshuffledQueue[0] + ", your turn!");
-            setStudentQueue(reshuffledQueue.slice(1));
+            const reshuffledQueue = shuffleArray(studentsData);
+            console.log("reshuffledQueue:", reshuffledQueue); // Debugging log
+            if (reshuffledQueue.length > 0) {
+                setStudentQueue(reshuffledQueue);
+                setStudentChosen(reshuffledQueue[0]); // Choose the first student object
+                setStudentQueue(reshuffledQueue.slice(1));
+            } else {
+                console.error("No students available to choose from.");
+                setStudentChosen(null);
+            }
         } else {
             const chosenStudent = studentQueue[0];
-            setStudentChosen(chosenStudent + ", your turn!");
+            console.log("chosenStudent:", chosenStudent); // Debugging log
+            setStudentChosen(chosenStudent); // Set the full student object
             setStudentQueue(studentQueue.slice(1));
         }
 
@@ -49,29 +82,26 @@ export const SingleStudentSelector = (props) => {
     const onRecordAnswer = async (didAnswer) => {
         setAnswered(didAnswer);
 
-        const studentName = studentChosen.split(",")[0];
-        const student = studentsData.find((s) => s.name === studentName);
-
-        if (!student || !student.id) {
-            console.error("No valid student found for:", studentName);
+        if (!studentChosen || !studentChosen.id) {
+            console.error("No valid student selected");
             return;
         }
 
         try {
             const endpoint = didAnswer
-                ? `http://localhost:8080/api/student-responses/increment-answered/${student.id}`
-                : `http://localhost:8080/api/student-responses/increment-passed/${student.id}`;
+                ? `http://localhost:8080/api/student-responses/increment-answered/${studentChosen.id}`
+                : `http://localhost:8080/api/student-responses/increment-passed/${studentChosen.id}`;
 
             await axios.post(endpoint);
 
-            console.log(`${student.name} ${didAnswer ? "answered" : "passed"}`);
+            console.log(`${studentChosen.name} ${didAnswer ? "answered" : "passed"}`);
         } catch (error) {
             console.error("Error updating student response:", error.response || error.message);
         }
 
         setStudentsData(
             studentsData.map((s) =>
-                s.name === studentName
+                s.id === studentChosen.id
                     ? {
                           ...s,
                           timesAnswered: s.timesAnswered + (didAnswer ? 1 : 0),
@@ -81,7 +111,7 @@ export const SingleStudentSelector = (props) => {
         );
 
         setTimeout(() => {
-            setStudentChosen("-");
+            setStudentChosen(null);
             setAnswered(null);
         }, 1000);
     };
@@ -97,9 +127,11 @@ export const SingleStudentSelector = (props) => {
                 </Button>
             </Row>
             <Row>
-                <h4 className="p-2">{studentChosen}</h4>
+                <h4 className="p-2">
+                    {studentChosen ? `${studentChosen.name}, your turn!` : "-"}
+                </h4>
             </Row>
-            {studentChosen !== "-" && (
+            {studentChosen && (
                 <Row>
                     <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>
                         Answer

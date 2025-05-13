@@ -17,6 +17,11 @@ class AttendanceDataService {
         return axiosInstance.get(`/courses/${courseId}/students`);
     }
 
+    getResponseCountersByCourseId(courseId) {
+        // Fixed method to avoid duplicate /api
+        return axiosInstance.get(`/student-responses/course/${courseId}/students`);
+    }
+
     recordAttendance(attendanceMarks) {
         return axiosInstance.post("/attendanceMarks", attendanceMarks);
     }

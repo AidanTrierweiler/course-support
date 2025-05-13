@@ -83,7 +83,10 @@ const CourseSupport = (props) => {
                         path="attendancereport"
                         element={<AttendanceReportDisplay courseId={courseId} />}
                     />
-                    <Route path="student-list" element={<StudentList />} />
+                    <Route
+                        path="student-list"
+                        element={<StudentList courseId={courseId} />} // Pass the selected courseId dynamically
+                    />
                     <Route path="saved-groups" element={<SavedGroups />} />
                     <Route
                         path="random-picker"

@@ -13,11 +13,12 @@ import AttendanceDataService from "./AttendanceDataService";
 const CourseSupport = (props) => {
     const [courseId, setCourseId] = useState(null);
     const [allCourseIds, setAllCourseIds] = useState([]);
+    const [students, setStudents] = useState([]);
     const [error, setError] = useState(null);
 
     // Fetch all course IDs from the database
     useEffect(() => {
-        let isMounted = true; // Track if the component is mounted
+        let isMounted = true;
 
         AttendanceDataService.getCourseIds()
             .then((response) => {
@@ -39,6 +40,19 @@ const CourseSupport = (props) => {
             isMounted = false; // Cleanup function to prevent state updates
         };
     }, []);
+
+    // Fetch students for the selected course
+    useEffect(() => {
+        if (courseId) {
+            AttendanceDataService.getStudents(courseId)
+                .then((response) => {
+                    setStudents(response.data.map((student) => student.netpass)); // Use netpass or preferredName
+                })
+                .catch((error) => {
+                    console.error("Error fetching students:", error);
+                });
+        }
+    }, [courseId]);
 
     if (error) {
         return <div>{error}</div>; // Display error message
@@ -75,7 +89,7 @@ const CourseSupport = (props) => {
                         path="random-picker"
                         element={
                             <SingleStudentSelector
-                                studentsPresent={["Alice", "Bob", "Charlie"]}
+                                studentsPresent={students} // Pass fetched students
                                 selectionMethod="random"
                             />
                         }
@@ -84,7 +98,7 @@ const CourseSupport = (props) => {
                         path="group-maker"
                         element={
                             <GroupBuilder
-                                studentsPresent={["Alice", "Bob", "Charlie", "David"]}
+                                studentsPresent={students} // Pass fetched students
                                 defaultGroupSize={2}
                             />
                         }
@@ -93,12 +107,7 @@ const CourseSupport = (props) => {
                         path="attendance-checker"
                         element={
                             <AttendanceChecker
-                                roster={
-                                    new Map([
-                                        ["Alice", "present"],
-                                        ["Bob", "absent"],
-                                    ])
-                                }
+                                roster={new Map(students.map((student) => [student, "present"]))}
                             />
                         }
                     />

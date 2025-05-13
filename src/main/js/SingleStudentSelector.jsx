@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Row, Button } from "react-bootstrap";
-
-export const selectRandomOneFromList = (list) => {
-    return list[Math.floor(Math.random() * list.length)];
-};
+import axios from "axios";
 
 export const shuffleArray = (array) => {
     let shuffledArray = array.slice();
@@ -17,11 +14,14 @@ export const shuffleArray = (array) => {
 export const SingleStudentSelector = (props) => {
     const [studentChosen, setStudentChosen] = useState("-");
     const [answered, setAnswered] = useState(null);
-    const [studentsData, setStudentsData] = useState(props.studentsPresent.map(student => ({
-        name: student,
-        timesCalledOn: 0,
-        timesAnswered: 0
-    })));
+    const [studentsData, setStudentsData] = useState(
+        props.studentsPresent.map((student, index) => ({
+            id: index + 1, // Assign a temporary ID if not provided
+            name: student,
+            timesCalledOn: 0,
+            timesAnswered: 0,
+        }))
+    );
     const [studentQueue, setStudentQueue] = useState([]);
 
     useEffect(() => {
@@ -30,38 +30,55 @@ export const SingleStudentSelector = (props) => {
         }
     }, [props.studentsPresent, props.selectionMethod]);
 
-    const onChooseClick = (e) => {
-        let chosenStudent;
-        let updatedQueue = studentQueue;
-
-        if (props.selectionMethod === "queue") {
-            if (studentQueue.length === 0) {
-                updatedQueue = shuffleArray(props.studentsPresent);
-                setStudentQueue(updatedQueue);
-            }
-            chosenStudent = updatedQueue[0];
-            setStudentQueue(updatedQueue.slice(1));
+    const onChooseClick = () => {
+        if (studentQueue.length === 0) {
+            console.log("Queue is empty, reshuffling...");
+            const reshuffledQueue = shuffleArray(props.studentsPresent);
+            setStudentQueue(reshuffledQueue);
+            setStudentChosen(reshuffledQueue[0] + ", your turn!");
+            setStudentQueue(reshuffledQueue.slice(1));
         } else {
-            chosenStudent = selectRandomOneFromList(props.studentsPresent);
+            const chosenStudent = studentQueue[0];
+            setStudentChosen(chosenStudent + ", your turn!");
+            setStudentQueue(studentQueue.slice(1));
         }
 
-        setStudentChosen(chosenStudent + ", your turn!");
         setAnswered(null);
-
-        setStudentsData(studentsData.map(student => 
-            student.name === chosenStudent ? { ...student, timesCalledOn: student.timesCalledOn + 1 } : student
-        ));
     };
 
-    const onRecordAnswer = (didAnswer) => {
+    const onRecordAnswer = async (didAnswer) => {
         setAnswered(didAnswer);
+
         const studentName = studentChosen.split(",")[0];
+        const student = studentsData.find((s) => s.name === studentName);
 
-        setStudentsData(studentsData.map(student => 
-            student.name === studentName ? { ...student, timesAnswered: student.timesAnswered + (didAnswer ? 1 : 0) } : student
-        ));
+        if (!student || !student.id) {
+            console.error("No valid student found for:", studentName);
+            return;
+        }
 
-        console.log(`${studentName} answered ${didAnswer ? "Yes" : "No"}`);
+        try {
+            const endpoint = didAnswer
+                ? `http://localhost:8080/api/student-responses/increment-answered/${student.id}`
+                : `http://localhost:8080/api/student-responses/increment-passed/${student.id}`;
+
+            await axios.post(endpoint);
+
+            console.log(`${student.name} ${didAnswer ? "answered" : "passed"}`);
+        } catch (error) {
+            console.error("Error updating student response:", error.response || error.message);
+        }
+
+        setStudentsData(
+            studentsData.map((s) =>
+                s.name === studentName
+                    ? {
+                          ...s,
+                          timesAnswered: s.timesAnswered + (didAnswer ? 1 : 0),
+                      }
+                    : s
+            )
+        );
 
         setTimeout(() => {
             setStudentChosen("-");
@@ -75,15 +92,21 @@ export const SingleStudentSelector = (props) => {
                 <h6 className="px-2"> Choose Random student: </h6>
             </Row>
             <Row>
-                <Button className="m-2" onClick={onChooseClick}>Choose Next</Button>
+                <Button className="m-2" onClick={onChooseClick}>
+                    Choose Next
+                </Button>
             </Row>
             <Row>
                 <h4 className="p-2">{studentChosen}</h4>
             </Row>
             {studentChosen !== "-" && (
                 <Row>
-                    <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>Answer</Button>
-                    <Button className="m-2 btn-light-blue" onClick={() => onRecordAnswer(false)}>Pass</Button>
+                    <Button className="m-2 btn-success" onClick={() => onRecordAnswer(true)}>
+                        Answer
+                    </Button>
+                    <Button className="m-2 btn-light-blue" onClick={() => onRecordAnswer(false)}>
+                        Pass
+                    </Button>
                 </Row>
             )}
             {answered !== null && (

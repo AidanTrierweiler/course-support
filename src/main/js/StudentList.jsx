@@ -25,11 +25,10 @@ const StudentList = ({ courseId }) => {
             .then((response) => {
                 if (isMounted) {
                     const formattedStudents = response.data.map((student) => ({
-                        id: student[0], // Student ID
+                        netpass: student[0], // Netpass
                         preferredName: student[1], // Preferred Name
-                        netpass: student[2], // Netpass
-                        answered_count: student[3], // Answered Count
-                        passed_count: student[4], // Passed Count
+                        answered_count: student[2], // Answered Count
+                        passed_count: student[3], // Passed Count
                     }));
                     setStudents(formattedStudents);
                     setLoading(false);

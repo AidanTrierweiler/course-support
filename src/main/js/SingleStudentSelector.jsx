@@ -11,16 +11,19 @@ export const shuffleArray = (array) => {
     return shuffledArray;
 };
 
-export const SingleStudentSelector = () => {
+export const SingleStudentSelector = ({ courseId }) => {
     const [studentChosen, setStudentChosen] = useState(null); // Store the full student object
     const [answered, setAnswered] = useState(null);
     const [studentsData, setStudentsData] = useState([]);
     const [studentQueue, setStudentQueue] = useState([]);
 
-    const courseId = "COMP220"; // Hardcoded courseId for COMP220
-
-    // Fetch full student objects for COMP220
+    // Fetch full student objects when the course changes
     useEffect(() => {
+        if (!courseId) {
+            console.error("No courseId provided to SingleStudentSelector.");
+            return;
+        }
+
         console.log("Fetching students for course:", courseId); // Debugging log
 
         const fetchStudents = async () => {

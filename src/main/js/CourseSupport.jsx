@@ -89,8 +89,7 @@ const CourseSupport = (props) => {
                         path="random-picker"
                         element={
                             <SingleStudentSelector
-                                studentsPresent={students} // Pass fetched students
-                                selectionMethod="random"
+                                courseId={courseId} // Pass the selected courseId dynamically
                             />
                         }
                     />

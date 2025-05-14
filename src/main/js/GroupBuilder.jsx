@@ -114,15 +114,23 @@ export const GroupBuilder = (props) => {
                     <h6>Manual Group Creation</h6>
                     <Select
                         isMulti
-                        options={remainingStudents.concat(manualGroup).map((student) => ({ value: student, label: student }))}
-                        value={manualGroup.map((student) => ({ value: student, label: student }))}
+                        options={remainingStudents.concat(manualGroup).map((student) => ({
+                            value: student,
+                            label: props.studentInfo?.[student] || student // Show preferred name
+                        }))}
+                        value={manualGroup.map((student) => ({
+                            value: student,
+                            label: props.studentInfo?.[student] || student
+                        }))}
                         onChange={onManualGroupChange}
                         placeholder="Select students to add to the group"
                     />
                     <h6 className="mt-3">Current Manual Group</h6>
                     <ListGroup className="m-2">
                         {manualGroup.map((student, index) => (
-                            <ListGroupItem key={index}>{student}</ListGroupItem>
+                            <ListGroupItem key={index}>
+                                {props.studentInfo?.[student] || student}
+                            </ListGroupItem>
                         ))}
                     </ListGroup>
                     <Button
@@ -145,7 +153,7 @@ export const GroupBuilder = (props) => {
                     <ListGroup className="m-2">
                         {groups.map((group, index) => (
                             <ListGroupItem key={index}>
-                                Group {index + 1}: {group.join(", ")}
+                                Group {index + 1}: {group.map(s => props.studentInfo?.[s] || s).join(", ")}
                             </ListGroupItem>
                         ))}
                     </ListGroup>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dropdown, DropdownButton, ListGroup, ListGroupItem, Row, Col } from "react-bootstrap";
 import axios from "axios";
 
-export const SavedGroups = ({ courseId }) => {
+export const SavedGroups = ({ courseId, studentInfo }) => {
     const [savedGroups, setSavedGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
 
@@ -85,7 +85,12 @@ export const SavedGroups = ({ courseId }) => {
                         {Array.isArray(selectedGroup.subgroups) ? (
                             <ListGroup className="m-2">
                                 {selectedGroup.subgroups.map((subgroup, index) => (
-                                    <ListGroupItem key={index}>{subgroup.join(", ")}</ListGroupItem>
+                                    <ListGroupItem key={index}>
+                                        {subgroup
+                                            .map(netpass => studentInfo?.[netpass] || netpass)
+                                            .join(", ")
+                                        }
+                                    </ListGroupItem>
                                 ))}
                             </ListGroup>
                         ) : (

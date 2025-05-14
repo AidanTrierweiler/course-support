@@ -8,7 +8,7 @@ const chooseBootstrapClassByStatus = (status) => {
     return "bg-light";
 };
 
-export const AttendanceReportDisplay = ({ courseId }) => {
+export const AttendanceReportDisplay = ({ courseId, studentInfo }) => {
     const [attendanceMarks, setAttendanceMarks] = useState([]);
     const [dayNumber, setDayNumber] = useState(1);
     const [availableDays, setAvailableDays] = useState([1]);
@@ -25,7 +25,6 @@ export const AttendanceReportDisplay = ({ courseId }) => {
 
     // Optionally, fetch available days for the course (or just use a fixed range)
     useEffect(() => {
-        // You could fetch available days from the backend if you have an endpoint for that
         setAvailableDays(Array.from({ length: 58 }, (_, i) => i + 1));
     }, [courseId]);
 
@@ -69,7 +68,7 @@ export const AttendanceReportDisplay = ({ courseId }) => {
                     <tbody>
                         {Object.entries(studentMap).map(([studentId, status]) => (
                             <tr key={studentId}>
-                                <td>{studentId}</td>
+                                <td>{studentInfo?.[studentId] || studentId}</td>
                                 <td className={chooseBootstrapClassByStatus(status)}>{status}</td>
                             </tr>
                         ))}

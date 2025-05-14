@@ -46,13 +46,18 @@ const CourseSupport = (props) => {
         if (courseId) {
             AttendanceDataService.getStudents(courseId)
                 .then((response) => {
-                    setStudents(response.data.map((student) => student.netpass)); // Use netpass or preferredName
+                    setStudents(response.data); // <-- Store full objects
                 })
                 .catch((error) => {
                     console.error("Error fetching students:", error);
                 });
         }
     }, [courseId]);
+
+    const studentInfo = {};
+    students.forEach((student) => {
+        studentInfo[student.netpass] = student.preferredName;
+    });
 
     if (error) {
         return <div>{error}</div>; // Display error message
@@ -81,13 +86,16 @@ const CourseSupport = (props) => {
                     />
                     <Route
                         path="attendancereport"
-                        element={<AttendanceReportDisplay courseId={courseId} />}
+                        element={<AttendanceReportDisplay courseId={courseId} studentInfo={studentInfo} />}
                     />
                     <Route
                         path="student-list"
                         element={<StudentList courseId={courseId} />} // Pass the selected courseId dynamically
                     />
-                    <Route path="saved-groups" element={<SavedGroups courseId={courseId} />} />
+                    <Route
+                        path="saved-groups"
+                        element={<SavedGroups courseId={courseId} studentInfo={studentInfo} />}
+                    />
                     <Route
                         path="random-picker"
                         element={
@@ -100,9 +108,9 @@ const CourseSupport = (props) => {
                         path="group-maker"
                         element={
                             <GroupBuilder
-                                studentsPresent={students} // students for the selected course
-                                defaultGroupSize={2}
-                                courseId={courseId}        // pass the selected courseId
+                                studentsPresent={students.map(s => s.netpass)}
+                                courseId={courseId}
+                                studentInfo={studentInfo}
                             />
                         }
                     />
@@ -110,8 +118,9 @@ const CourseSupport = (props) => {
                         path="attendance-checker"
                         element={
                             <AttendanceChecker
-                                roster={new Map(students.map((student) => [student, "present"]))}
-                                courseId={courseId} // <-- This must be present and not undefined!
+                                roster={new Map(students.map((student) => [student.netpass, "present"]))}
+                                courseId={courseId}
+                                studentInfo={studentInfo}
                             />
                         }
                     />

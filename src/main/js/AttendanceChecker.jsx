@@ -44,18 +44,19 @@ export const AttendanceChecker = (props) => {
         }
     };
 
-    const produceCheckbox = ([studentName]) => {
-        const checked = attendance.get(studentName) === "present";
+    const produceCheckbox = ([studentNetpass]) => {
+        const checked = attendance.get(studentNetpass) === "present";
+        const displayName = props.studentInfo?.[studentNetpass] || studentNetpass;
         return (
             <Form.Check
                 inline
                 checked={checked}
                 onChange={onCheckboxChange}
                 type="checkbox"
-                label={studentName}
-                key={studentName}
-                name={studentName}
-                id={studentName + "checkbox"}
+                label={displayName}
+                key={studentNetpass}
+                name={studentNetpass}
+                id={studentNetpass + "checkbox"}
             />
         );
     };

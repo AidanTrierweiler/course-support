@@ -44,6 +44,24 @@ export const SavedGroups = () => {
         }
     };
 
+    // Helper to check if a string is a date in YYYY-MM-DD format
+    const isDateString = (str) => /^\d{4}-\d{2}-\d{2}$/.test(str);
+
+    // Sort savedGroups: custom names first, then dates (most recent first)
+    const sortedGroups = [...savedGroups].sort((a, b) => {
+        const aIsDate = isDateString(a.name);
+        const bIsDate = isDateString(b.name);
+
+        if (aIsDate && !bIsDate) return 1; // b (custom) before a (date)
+        if (!aIsDate && bIsDate) return -1; // a (custom) before b (date)
+        if (aIsDate && bIsDate) {
+            // Both are dates, sort descending
+            return b.name.localeCompare(a.name);
+        }
+        // Both are custom names, keep original order or sort alphabetically if you prefer
+        return 0;
+    });
+
     return (
         <Row>
             <Col sm={4}>
@@ -52,7 +70,7 @@ export const SavedGroups = () => {
                     title={selectedGroup ? selectedGroup.name : "Select a Group"}
                     onSelect={handleSelectGroup}
                 >
-                    {savedGroups.map((group, index) => (
+                    {sortedGroups.map((group, index) => (
                         <Dropdown.Item key={index} eventKey={group.name}>
                             {group.name}
                         </Dropdown.Item>

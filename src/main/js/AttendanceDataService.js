@@ -1,8 +1,13 @@
 import axiosInstance from "../../http-common";
 
 class AttendanceDataService {
-    getAllAttendanceMarks() {
-        return axiosInstance.get("/attendanceMarks");
+    getAllAttendanceMarks(courseId, dayNumber) {
+        let url = "/attendanceMarks";
+        const params = [];
+        if (courseId) params.push(`courseId=${courseId}`);
+        if (dayNumber) params.push(`dayNumber=${dayNumber}`);
+        if (params.length) url += "?" + params.join("&");
+        return axiosInstance.get(url);
     }
 
     getRecentAttendanceMarks() {

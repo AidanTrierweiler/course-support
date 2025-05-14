@@ -87,7 +87,7 @@ const CourseSupport = (props) => {
                         path="student-list"
                         element={<StudentList courseId={courseId} />} // Pass the selected courseId dynamically
                     />
-                    <Route path="saved-groups" element={<SavedGroups />} />
+                    <Route path="saved-groups" element={<SavedGroups courseId={courseId} />} />
                     <Route
                         path="random-picker"
                         element={
@@ -100,8 +100,9 @@ const CourseSupport = (props) => {
                         path="group-maker"
                         element={
                             <GroupBuilder
-                                studentsPresent={students} // Pass fetched students
+                                studentsPresent={students} // students for the selected course
                                 defaultGroupSize={2}
+                                courseId={courseId}        // pass the selected courseId
                             />
                         }
                     />
@@ -110,6 +111,7 @@ const CourseSupport = (props) => {
                         element={
                             <AttendanceChecker
                                 roster={new Map(students.map((student) => [student, "present"]))}
+                                courseId={courseId} // <-- This must be present and not undefined!
                             />
                         }
                     />

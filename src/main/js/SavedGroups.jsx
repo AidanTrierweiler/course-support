@@ -2,15 +2,20 @@ import { useEffect, useState } from "react";
 import { Dropdown, DropdownButton, ListGroup, ListGroupItem, Row, Col } from "react-bootstrap";
 import axios from "axios";
 
-export const SavedGroups = () => {
+export const SavedGroups = ({ courseId }) => {
     const [savedGroups, setSavedGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
 
-    // Fetch all saved groups on component mount
+    // Fetch all saved groups when courseId changes
     useEffect(() => {
+        if (!courseId) {
+            setSavedGroups([]);
+            setSelectedGroup(null);
+            return;
+        }
         const fetchSavedGroups = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/groups");
+                const response = await axios.get(`http://localhost:8080/api/groups?courseId=${courseId}`);
                 setSavedGroups(response.data);
             } catch (error) {
                 console.error("Error fetching saved groups:", error);
@@ -18,7 +23,7 @@ export const SavedGroups = () => {
         };
 
         fetchSavedGroups();
-    }, []);
+    }, [courseId]);
 
     // Handle group selection and sanitize subgroups if necessary
     const handleSelectGroup = async (groupName) => {
@@ -29,10 +34,8 @@ export const SavedGroups = () => {
             // Check if subgroups is a string
             if (typeof groupData.subgroups === "string") {
                 try {
-                    // Attempt to parse the string as JSON
                     groupData.subgroups = JSON.parse(groupData.subgroups);
                 } catch (error) {
-                    // If parsing fails, keep it as a plain string
                     console.warn("Subgroups is not valid JSON, treating it as a plain string:", groupData.subgroups);
                 }
             }
@@ -40,7 +43,7 @@ export const SavedGroups = () => {
             setSelectedGroup(groupData);
         } catch (error) {
             console.error("Error fetching selected group:", error);
-            setSelectedGroup(null); // Clear the selected group if there's an error
+            setSelectedGroup(null);
         }
     };
 
@@ -52,13 +55,11 @@ export const SavedGroups = () => {
         const aIsDate = isDateString(a.name);
         const bIsDate = isDateString(b.name);
 
-        if (aIsDate && !bIsDate) return 1; // b (custom) before a (date)
-        if (!aIsDate && bIsDate) return -1; // a (custom) before b (date)
+        if (aIsDate && !bIsDate) return 1;
+        if (!aIsDate && bIsDate) return -1;
         if (aIsDate && bIsDate) {
-            // Both are dates, sort descending
             return b.name.localeCompare(a.name);
         }
-        // Both are custom names, keep original order or sort alphabetically if you prefer
         return 0;
     });
 
@@ -88,7 +89,7 @@ export const SavedGroups = () => {
                                 ))}
                             </ListGroup>
                         ) : (
-                            <p>{selectedGroup.subgroups}</p> // Display the string directly
+                            <p>{selectedGroup.subgroups}</p>
                         )}
                     </div>
                 )}

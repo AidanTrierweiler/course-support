@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Container, Row, Button, Col, ListGroup, ListGroupItem } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Container, Row, Button, Col, ListGroup, ListGroupItem } from "react-bootstrap"; // Removed Form
 import Select from "react-select";
 import axios from "axios";
 
@@ -27,6 +27,13 @@ export const GroupBuilder = (props) => {
     const [manualGroup, setManualGroup] = useState([]);
     const [remainingStudents, setRemainingStudents] = useState(props.studentsPresent);
 
+    // Update remainingStudents if studentsPresent changes (when course changes)
+    useEffect(() => {
+        setRemainingStudents(props.studentsPresent);
+        setGroups([]);
+        setManualGroup([]);
+    }, [props.studentsPresent]);
+
     const onGroupSizeChange = (e) => {
         setGroupSize(e.target.value);
     };
@@ -40,10 +47,10 @@ export const GroupBuilder = (props) => {
         const groupName = prompt(`Enter a name for the group (default: ${currentDate}):`, currentDate);
 
         if (groupName) {
-            // Convert the groups array to a JSON string
             const groupData = {
                 name: String(groupName),
-                subgroups: JSON.stringify(groups), // Convert groups to a JSON string
+                subgroups: JSON.stringify(groups),
+                courseId: props.courseId, // Always use the courseId from props
             };
 
             try {
@@ -53,12 +60,6 @@ export const GroupBuilder = (props) => {
                 console.error("Error saving group and subgroups:", error);
             }
         }
-    };
-
-    const onAddToManualGroup = (selectedStudents) => {
-        const selectedStudentNames = selectedStudents.map((option) => option.value);
-        setManualGroup([...manualGroup, ...selectedStudentNames]);
-        setRemainingStudents(remainingStudents.filter((s) => !selectedStudentNames.includes(s)));
     };
 
     const onFinalizeManualGroup = () => {
@@ -71,6 +72,12 @@ export const GroupBuilder = (props) => {
     const onClearManualGroup = () => {
         setRemainingStudents([...remainingStudents, ...manualGroup]);
         setManualGroup([]);
+    };
+
+    const onManualGroupChange = (selectedStudents) => {
+        const selectedStudentNames = selectedStudents.map((option) => option.value);
+        setManualGroup(selectedStudentNames);
+        setRemainingStudents(remainingStudents.filter((s) => !selectedStudentNames.includes(s)));
     };
 
     return (
@@ -107,8 +114,9 @@ export const GroupBuilder = (props) => {
                     <h6>Manual Group Creation</h6>
                     <Select
                         isMulti
-                        options={remainingStudents.map((student) => ({ value: student, label: student }))}
-                        onChange={onAddToManualGroup}
+                        options={remainingStudents.concat(manualGroup).map((student) => ({ value: student, label: student }))}
+                        value={manualGroup.map((student) => ({ value: student, label: student }))}
+                        onChange={onManualGroupChange}
                         placeholder="Select students to add to the group"
                     />
                     <h6 className="mt-3">Current Manual Group</h6>
